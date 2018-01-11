@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{30E5B263-403E-5A32-4F60-E09739AD7F12}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "UnrealDynaBlaster",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
