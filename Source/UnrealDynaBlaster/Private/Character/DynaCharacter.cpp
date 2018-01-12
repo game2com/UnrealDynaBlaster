@@ -32,11 +32,43 @@ void ADynaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MoveForward", this, &ADynaCharacter::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ADynaCharacter::MoveRight);
+	PlayerInputComponent->BindAxis("MoveForwardFirst", this, &ADynaCharacter::FirstCharMoveForward);
+	PlayerInputComponent->BindAxis("MoveRightFirst", this, &ADynaCharacter::FirstCharMoveRight);
+
+	PlayerInputComponent->BindAxis("MoveForwardSecond", this, &ADynaCharacter::SecondCharMoveForward);
+	PlayerInputComponent->BindAxis("MoveRightSecond", this, &ADynaCharacter::SecondCharMoveRight);
 }
 
 #pragma region Movement
+
+void ADynaCharacter::FirstCharMoveForward(float Value)
+{
+	if (IAmSecondCharacter)
+		return;
+
+	MoveForward(Value);
+}
+
+void ADynaCharacter::FirstCharMoveRight(float Value)
+{
+	if (IAmSecondCharacter)
+		return;
+
+	MoveRight(Value);
+}
+
+void ADynaCharacter::SecondCharMoveForward(float Value)
+{
+	if(SecondCharacter)
+		SecondCharacter->MoveForward(Value);
+}
+
+void ADynaCharacter::SecondCharMoveRight(float Value)
+{
+	if(SecondCharacter)
+		SecondCharacter->MoveRight(Value);
+}
+
 void ADynaCharacter::MoveForward(float Value)
 {
 	FVector MoveVector = FVector(1, 0, 0);
