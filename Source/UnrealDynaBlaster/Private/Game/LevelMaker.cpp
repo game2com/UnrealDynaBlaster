@@ -42,9 +42,12 @@ void ALevelMaker::MakeGround()
 	/*Clear previous ground*/
 	if (SpawnedGroundPlane.Num() > 0)
 	{
-		for (UStaticMeshComponent* SM : SpawnedGroundPlane)
+		for (FTileInfo ThisTile : SpawnedGroundPlane)
 		{
-			SM->DestroyComponent(true);
+			if(ThisTile.MeshComp->IsValidLowLevel())
+				ThisTile.MeshComp->DestroyComponent(true);
+			ThisTile.Column = 0;
+			ThisTile.Row = 0;
 		}
 	}
 	SpawnedGroundPlane.Empty();
@@ -58,21 +61,32 @@ void ALevelMaker::MakeGround()
 			Loc.Y = Row * SizeOfBlock;
 			Loc.X = Col * SizeOfBlock;
 
-			UStaticMeshComponent* CurrentMeshComp = NewObject<UStaticMeshComponent>(this);
-			if (CurrentMeshComp)
-			{
-				CurrentMeshComp->RegisterComponentWithWorld(GetWorld());
-				FAttachmentTransformRules ATR = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
-				CurrentMeshComp->AttachToComponent(RootComponent, ATR);
-				AddOwnedComponent(CurrentMeshComp);
-				CurrentMeshComp->SetWorldLocation(Loc);
-				CurrentMeshComp->SetStaticMesh(PlaneMesh);
-				CurrentMeshComp->SetMaterial(0, PlaneMaterial);
-				/*Store in array*/
-				SpawnedGroundPlane.Add(CurrentMeshComp);
-			}
+			UStaticMeshComponent* NewMesh = SpawnMeshComponent(PlaneMesh, Loc, PlaneMaterial);
+
+			/*Store in array*/
+			FTileInfo NewTile = FTileInfo();
+			NewTile.SetDefault(NewMesh, Col, Row);
+			SpawnedGroundPlane.Add(NewTile);
 		}
 	}
+}
+
+UStaticMeshComponent* ALevelMaker::SpawnMeshComponent(UStaticMesh* NewMesh, FVector Position, UMaterialInterface* Material)
+{
+
+	UStaticMeshComponent* CurrentMeshComp = NewObject<UStaticMeshComponent>(this);
+	if (CurrentMeshComp)
+	{
+		CurrentMeshComp->RegisterComponentWithWorld(GetWorld());
+		FAttachmentTransformRules ATR = FAttachmentTransformRules(EAttachmentRule::KeepWorld, false);
+		CurrentMeshComp->AttachToComponent(RootComponent, ATR);
+		AddOwnedComponent(CurrentMeshComp);
+		CurrentMeshComp->SetWorldLocation(Position);
+		CurrentMeshComp->SetStaticMesh(NewMesh);
+		CurrentMeshComp->SetMaterial(0, Material);
+	}
+
+	return CurrentMeshComp;
 }
 
 #pragma endregion

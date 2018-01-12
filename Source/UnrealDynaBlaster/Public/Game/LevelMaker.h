@@ -6,6 +6,28 @@
 #include "GameFramework/Actor.h"
 #include "LevelMaker.generated.h"
 
+USTRUCT(BlueprintType)
+struct FTileInfo
+{
+	GENERATED_BODY()
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UStaticMeshComponent* MeshComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Column;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int32 Row;
+
+	void SetDefault(UStaticMeshComponent* NewMesh, int32 NewCol, int32 NewRow)
+	{
+		MeshComp = NewMesh;
+		Column = NewCol;
+		Row = NewRow;
+	}
+};
+
 UCLASS()
 class UNREALDYNABLASTER_API ALevelMaker : public AActor
 {
@@ -55,9 +77,12 @@ protected:
 		float SizeOfBlock = 100.0f;
 
 	UPROPERTY(VisibleAnywhere, Category = Controller)
-		TArray<UStaticMeshComponent*> SpawnedGroundPlane;
+		TArray<FTileInfo> SpawnedGroundPlane;
 
 	UFUNCTION(BlueprintCallable, Category = LevelMaker)
 	void MakeGround();
+
+
+	UStaticMeshComponent* SpawnMeshComponent(UStaticMesh* NewMesh, FVector Position, UMaterialInterface* Material);
 #pragma endregion
 };
