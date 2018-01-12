@@ -49,6 +49,7 @@ void ALevelMaker::MakeProceduralMap()
 		{
 			MakeGround(Col, Row);
 			MakeIndestructibleBlock(Col, Row);
+			SpawnDestructibleBricks(Col, Row);
 		}
 	}
 	MakeFence();
@@ -94,6 +95,19 @@ void ALevelMaker::ClearSpanwedTiles()
 		}
 	}
 	SpawnedFence.Empty();
+
+	//Clear Previous SpawnedBricks
+	if (SpawnedBricks.Num() > 0)
+	{
+		for (FTileInfo ThisTile : SpawnedBricks)
+		{
+			if (ThisTile.MeshComp->IsValidLowLevel())
+				ThisTile.MeshComp->DestroyComponent(true);
+			ThisTile.Column = 0;
+			ThisTile.Row = 0;
+		}
+	}
+	SpawnedBricks.Empty();
 }
 
 void ALevelMaker::MakeGround(int32 ColNum, int32 RowNum)
@@ -130,6 +144,35 @@ void ALevelMaker::MakeIndestructibleBlock(int32 ColNum, int32 RowNum)
 	NewTile.SetDefault(NewBlock, ColNum, RowNum);
 	SpawnedBlock.Add(NewTile);
 	
+}
+
+void ALevelMaker::SpawnDestructibleBricks(int32 ColNum, int32 RowNum)
+{
+	//if (ColNum == 0 || ColNum % 2 == 0)
+		//return;
+
+	if (ColNum % 2 != 0 && RowNum % 2 != 0)
+		return;
+
+	if ((ColNum == 0 || ColNum == 1) && (RowNum == 0 || RowNum == 1))
+		return;
+
+	if ((ColNum == NumberOfColumn - 1 || ColNum == NumberOfColumn - 2) && (RowNum == NumberOfRow - 1 || RowNum == NumberOfRow - 2))
+		return;
+
+	if (FMath::FRand() > BricksCrowd)
+		return;
+
+	FVector Loc = FVector::ZeroVector;
+	Loc.Y = RowNum * SizeOfBlock;
+	Loc.X = ColNum * SizeOfBlock;
+
+	UStaticMeshComponent* NewBlock = SpawnMeshComponent(BrickMesh, Loc, BrickMaterial);
+
+	/*Store in array*/
+	FTileInfo NewTile = FTileInfo();
+	NewTile.SetDefault(NewBlock, ColNum, RowNum);
+	SpawnedBricks.Add(NewTile);
 }
 
 void ALevelMaker::MakeFence()

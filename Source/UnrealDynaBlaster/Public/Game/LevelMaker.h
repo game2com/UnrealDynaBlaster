@@ -92,6 +92,20 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Controller)
 		TArray<FTileInfo> SpawnedFence;
 
+	UPROPERTY(EditAnywhere, Category = Controller)
+		UStaticMesh* BrickMesh;
+
+	UPROPERTY(EditAnywhere, Category = Controller)
+		UMaterialInterface* BrickMaterial;
+
+	UPROPERTY(EditAnywhere, Category = Controller, meta = (UIMin = "0.0", UIMax = "1.0"))
+		float BricksCrowd = 0.5f;
+
+	UPROPERTY(VisibleAnywhere, Category = Controller)
+		TArray<FTileInfo> SpawnedBricks;
+
+
+
 	UFUNCTION(BlueprintCallable, Category = LevelMaker)
 	void MakeProceduralMap();
 
@@ -100,6 +114,8 @@ protected:
 	void MakeGround(int32 ColNum, int32 RowNum);
 
 	void MakeIndestructibleBlock(int32 ColNum, int32 RowNum);
+
+	void SpawnDestructibleBricks(int32 ColNum, int32 RowNum);
 
 	void MakeFence();
 
