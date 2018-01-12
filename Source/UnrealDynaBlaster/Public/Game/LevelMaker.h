@@ -72,41 +72,34 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Controller)
 		int32 NumberOfRow = 13;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
+	UPROPERTY(EditAnywhere, Category = "Controller|Ground")
 		UStaticMesh* PlaneMesh;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
+	UPROPERTY(EditAnywhere, Category = "Controller|Ground")
 		UMaterialInterface* PlaneMaterial;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
+	UPROPERTY(EditAnywhere, Category = "Controller|Ground")
 		float SizeOfBlock = 100.0f;
 
-	UPROPERTY(VisibleAnywhere, Category = Controller)
-		TArray<FTileInfo> SpawnedGroundPlane;
+	UPROPERTY(VisibleAnywhere, Category = "Controller|Ground")
+		TArray<UStaticMeshComponent*> SpawnedGroundPlane;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
+	UPROPERTY(EditAnywhere, Category = "Controller|Block")
 		TSubclassOf<ABlock> BlockMesh;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
-		UMaterialInterface* BlockMaterial;
-
-	UPROPERTY(VisibleAnywhere, Category = Controller)
+	UPROPERTY(VisibleAnywhere, Category = "Controller|Block")
 		TArray<FTileInfo> SpawnedBlock;
 
-
-	UPROPERTY(VisibleAnywhere, Category = Controller)
+	UPROPERTY(VisibleAnywhere, Category = "Controller|Fence")
 		TArray<FTileInfo> SpawnedFence;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
+	UPROPERTY(EditAnywhere, Category = "Controller|Brick")
 		TSubclassOf<ABlock> BrickMesh;
 
-	UPROPERTY(EditAnywhere, Category = Controller)
-		UMaterialInterface* BrickMaterial;
-
-	UPROPERTY(EditAnywhere, Category = Controller, meta = (UIMin = "0.0", UIMax = "1.0"))
+	UPROPERTY(EditAnywhere, Category = "Controller|Brick", meta = (UIMin = "0.0", UIMax = "1.0"))
 		float BricksCrowd = 0.5f;
 
-	UPROPERTY(VisibleAnywhere, Category = Controller)
+	UPROPERTY(VisibleAnywhere, Category = "Controller|Brick")
 		TArray<FTileInfo> SpawnedBricks;
 
 
@@ -126,6 +119,6 @@ protected:
 
 	UStaticMeshComponent* SpawnMeshComponent(UStaticMesh* NewMesh, FVector Position, UMaterialInterface* Material);
 
-	ABlock* SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position, UMaterialInterface* Material);
+	ABlock* SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position);
 #pragma endregion
 };

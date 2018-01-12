@@ -60,12 +60,9 @@ void ALevelMaker::ClearSpanwedTiles()
 	/*Clear previous ground*/
 	if (SpawnedGroundPlane.Num() > 0)
 	{
-		for (FTileInfo ThisTile : SpawnedGroundPlane)
+		for (UStaticMeshComponent* ThisTile : SpawnedGroundPlane)
 		{
-			if (ThisTile.BlockActor->IsValidLowLevel())
-				ThisTile.BlockActor->Destroy();
-			ThisTile.Column = 0;
-			ThisTile.Row = 0;
+			ThisTile->DestroyComponent(true);
 		}
 	}
 	SpawnedGroundPlane.Empty();
@@ -119,9 +116,7 @@ void ALevelMaker::MakeGround(int32 ColNum, int32 RowNum)
 	UStaticMeshComponent* NewMesh = SpawnMeshComponent(PlaneMesh, Loc, PlaneMaterial);
 
 	/*Store in array*/
-	FTileInfo NewTile = FTileInfo();
-	//NewTile.SetDefault(NewMesh, ColNum, RowNum);
-	SpawnedGroundPlane.Add(NewTile);
+	SpawnedGroundPlane.Add(NewMesh);
 }
 
 void ALevelMaker::MakeIndestructibleBlock(int32 ColNum, int32 RowNum)
@@ -137,7 +132,7 @@ void ALevelMaker::MakeIndestructibleBlock(int32 ColNum, int32 RowNum)
 	Loc.Y = RowNum * SizeOfBlock;
 	Loc.X = ColNum * SizeOfBlock;
 
-	ABlock* NewBlock = SpawnBlock(BlockMesh, Loc, BlockMaterial);
+	ABlock* NewBlock = SpawnBlock(BlockMesh, Loc);
 
 	/*Store in array*/
 	FTileInfo NewTile = FTileInfo();
@@ -167,7 +162,7 @@ void ALevelMaker::SpawnDestructibleBricks(int32 ColNum, int32 RowNum)
 	Loc.Y = RowNum * SizeOfBlock;
 	Loc.X = ColNum * SizeOfBlock;
 
-	ABlock* NewBlock = SpawnBlock(BrickMesh, Loc, BrickMaterial);
+	ABlock* NewBlock = SpawnBlock(BrickMesh, Loc);
 
 	/*Store in array*/
 	FTileInfo NewTile = FTileInfo();
@@ -189,7 +184,7 @@ void ALevelMaker::MakeFence()
 			Loc.Y = j * SizeOfBlock;
 			Loc.X = i * SizeOfBlock;
 
-			ABlock* NewFenceBlock = SpawnBlock(BlockMesh, Loc, BlockMaterial);
+			ABlock* NewFenceBlock = SpawnBlock(BlockMesh, Loc);
 
 			FTileInfo NewTile = FTileInfo();
 			NewTile.SetDefault(NewFenceBlock, -1, j);
@@ -216,7 +211,7 @@ UStaticMeshComponent* ALevelMaker::SpawnMeshComponent(UStaticMesh* NewMesh, FVec
 	return CurrentMeshComp;
 }
 
-ABlock* ALevelMaker::SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position, UMaterialInterface* Material)
+ABlock* ALevelMaker::SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position)
 {
 	if (ThisBlockType == nullptr)
 		return nullptr;
