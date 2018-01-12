@@ -37,14 +37,31 @@ void ALevelMaker::Tick(float DeltaTime)
 
 #pragma region Level Maker Controller
 
-void ALevelMaker::MakeGround()
+void ALevelMaker::MakeProceduralMap()
+{
+	/*Clear Previous*/
+	ClearSpanwedTiles();
+
+	/*Add New*/
+	for (int32 Col = 0; Col < NumberOfColumn; Col++)
+	{
+		for (int32 Row = 0; Row < NumberOfRow; Row++)
+		{
+			MakeGround(Col, Row);
+			MakeIndestructibleBlock(Col, Row);
+		}
+	}
+	MakeFence();
+}
+
+void ALevelMaker::ClearSpanwedTiles()
 {
 	/*Clear previous ground*/
 	if (SpawnedGroundPlane.Num() > 0)
 	{
 		for (FTileInfo ThisTile : SpawnedGroundPlane)
 		{
-			if(ThisTile.MeshComp->IsValidLowLevel())
+			if (ThisTile.MeshComp->IsValidLowLevel())
 				ThisTile.MeshComp->DestroyComponent(true);
 			ThisTile.Column = 0;
 			ThisTile.Row = 0;
@@ -52,21 +69,88 @@ void ALevelMaker::MakeGround()
 	}
 	SpawnedGroundPlane.Empty();
 
-	/*Add new*/
-	for (int32 Col = 0; Col < NumberOfColumn; Col++)
+	/*Clear previous Block*/
+	if (SpawnedBlock.Num() > 0)
 	{
-		for (int32 Row = 0; Row < NumberOfRow; Row++)
+		for (FTileInfo ThisTile : SpawnedBlock)
 		{
+			if (ThisTile.MeshComp->IsValidLowLevel())
+				ThisTile.MeshComp->DestroyComponent(true);
+			ThisTile.Column = 0;
+			ThisTile.Row = 0;
+		}
+	}
+	SpawnedBlock.Empty();
+
+	//Clear Previous Fence
+	if (SpawnedFence.Num() > 0)
+	{
+		for (FTileInfo ThisTile : SpawnedFence)
+		{
+			if (ThisTile.MeshComp->IsValidLowLevel())
+				ThisTile.MeshComp->DestroyComponent(true);
+			ThisTile.Column = 0;
+			ThisTile.Row = 0;
+		}
+	}
+	SpawnedFence.Empty();
+}
+
+void ALevelMaker::MakeGround(int32 ColNum, int32 RowNum)
+{
+	FVector Loc = FVector::ZeroVector;
+	Loc.Y = RowNum * SizeOfBlock;
+	Loc.X = ColNum * SizeOfBlock;
+
+	UStaticMeshComponent* NewMesh = SpawnMeshComponent(PlaneMesh, Loc, PlaneMaterial);
+
+	/*Store in array*/
+	FTileInfo NewTile = FTileInfo();
+	NewTile.SetDefault(NewMesh, ColNum, RowNum);
+	SpawnedGroundPlane.Add(NewTile);
+}
+
+void ALevelMaker::MakeIndestructibleBlock(int32 ColNum, int32 RowNum)
+{
+	if (ColNum == 0 || ColNum % 2 == 0)
+		return;
+
+	if (RowNum == 0 || RowNum % 2 == 0)
+		return;
+
+
+	FVector Loc = FVector::ZeroVector;
+	Loc.Y = RowNum * SizeOfBlock;
+	Loc.X = ColNum * SizeOfBlock;
+
+	UStaticMeshComponent* NewBlock = SpawnMeshComponent(BlockMesh, Loc, BlockMaterial);
+
+	/*Store in array*/
+	FTileInfo NewTile = FTileInfo();
+	NewTile.SetDefault(NewBlock, ColNum, RowNum);
+	SpawnedBlock.Add(NewTile);
+	
+}
+
+void ALevelMaker::MakeFence()
+{
+	for (int32 i = -1; i < NumberOfColumn + 1; i++)
+	{
+		for (int32 j = -1; j < NumberOfRow + 1; j++)
+		{
+
+			if ((i > -1 && i < NumberOfColumn) && (j > -1 && j < NumberOfRow))
+				continue;
+
 			FVector Loc = FVector::ZeroVector;
-			Loc.Y = Row * SizeOfBlock;
-			Loc.X = Col * SizeOfBlock;
+			Loc.Y = j * SizeOfBlock;
+			Loc.X = i * SizeOfBlock;
 
-			UStaticMeshComponent* NewMesh = SpawnMeshComponent(PlaneMesh, Loc, PlaneMaterial);
+			UStaticMeshComponent* NewFenceBlock = SpawnMeshComponent(BlockMesh, Loc, BlockMaterial);
 
-			/*Store in array*/
 			FTileInfo NewTile = FTileInfo();
-			NewTile.SetDefault(NewMesh, Col, Row);
-			SpawnedGroundPlane.Add(NewTile);
+			NewTile.SetDefault(NewFenceBlock, -1, j);
+			SpawnedFence.Add(NewTile);
 		}
 	}
 }

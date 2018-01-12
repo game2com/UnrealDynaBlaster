@@ -79,9 +79,29 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = Controller)
 		TArray<FTileInfo> SpawnedGroundPlane;
 
-	UFUNCTION(BlueprintCallable, Category = LevelMaker)
-	void MakeGround();
+	UPROPERTY(EditAnywhere, Category = Controller)
+		UStaticMesh* BlockMesh;
 
+	UPROPERTY(EditAnywhere, Category = Controller)
+		UMaterialInterface* BlockMaterial;
+
+	UPROPERTY(VisibleAnywhere, Category = Controller)
+		TArray<FTileInfo> SpawnedBlock;
+
+
+	UPROPERTY(VisibleAnywhere, Category = Controller)
+		TArray<FTileInfo> SpawnedFence;
+
+	UFUNCTION(BlueprintCallable, Category = LevelMaker)
+	void MakeProceduralMap();
+
+	void ClearSpanwedTiles();
+
+	void MakeGround(int32 ColNum, int32 RowNum);
+
+	void MakeIndestructibleBlock(int32 ColNum, int32 RowNum);
+
+	void MakeFence();
 
 	UStaticMeshComponent* SpawnMeshComponent(UStaticMesh* NewMesh, FVector Position, UMaterialInterface* Material);
 #pragma endregion
