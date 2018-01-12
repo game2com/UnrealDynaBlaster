@@ -3,12 +3,14 @@
 #include "DynaCharacter.h"
 
 
-// Sets default values
+
 ADynaCharacter::ADynaCharacter()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
 
+	PrimaryActorTick.bCanEverTick = true;
+	
+	bUseControllerRotationYaw = false;
+	//GetCharacterMovement()->bOrientRotationToMovement = true;
 }
 
 // Called when the game starts or when spawned
@@ -30,5 +32,22 @@ void ADynaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAxis("MoveForward", this, &ADynaCharacter::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ADynaCharacter::MoveRight);
 }
+
+#pragma region Movement
+void ADynaCharacter::MoveForward(float Value)
+{
+	FVector MoveVector = FVector(1, 0, 0);
+	AddMovementInput(MoveVector * Value);
+}
+
+void ADynaCharacter::MoveRight(float Value)
+{
+
+	FVector MoveVector = FVector(0, 1, 0);
+	AddMovementInput(MoveVector * Value);
+}
+#pragma endregion
 
