@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "DynaCharacter.h"
-
+#include "Kismet/GameplayStatics.h"
 
 
 ADynaCharacter::ADynaCharacter()
@@ -37,6 +37,17 @@ void ADynaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAxis("MoveForwardSecond", this, &ADynaCharacter::SecondCharMoveForward);
 	PlayerInputComponent->BindAxis("MoveRightSecond", this, &ADynaCharacter::SecondCharMoveRight);
+
+
+	PlayerInputComponent->BindAction("SpawnBombFirst", EInputEvent::IE_Pressed, this, &ADynaCharacter::SpawnBombFirstCharacter);
+	PlayerInputComponent->BindAction("SpawnBombSecond", EInputEvent::IE_Pressed, this, &ADynaCharacter::SpawnBombSecondCharacter);
+}
+
+float ADynaCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "I'm Dead");
+	bIsDead = true;
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
 #pragma region Movement
@@ -81,5 +92,43 @@ void ADynaCharacter::MoveRight(float Value)
 	FVector MoveVector = FVector(0, 1, 0);
 	AddMovementInput(MoveVector * Value);
 }
+
+#pragma endregion
+
+#pragma region Weapon
+
+void ADynaCharacter::SpawnBombFirstCharacter()
+{
+	if (IAmSecondCharacter)
+		return;
+
+	SpawnBomb();
+}
+
+void ADynaCharacter::SpawnBombSecondCharacter()
+{
+	if (SecondCharacter)
+		SecondCharacter->SpawnBomb();
+}
+
+void ADynaCharacter::SpawnBomb()
+{
+	if (NumberOfBomb <= 0)
+		return;
+
+	FTransform Tr;
+	Tr.SetLocation(GetActorLocation());
+	ABomb* NewBomb = GetWorld()->SpawnActorDeferred<ABomb>(BombClassTemplate,Tr, this, this);
+	if (NewBomb)
+		UGameplayStatics::FinishSpawningActor(NewBomb, Tr);
+
+	NumberOfBomb -= 1;
+}
+
+void ADynaCharacter::IncreaseBombCount()
+{
+	NumberOfBomb += 1;
+}
+
 #pragma endregion
 

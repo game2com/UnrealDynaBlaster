@@ -62,8 +62,8 @@ void ALevelMaker::ClearSpanwedTiles()
 	{
 		for (FTileInfo ThisTile : SpawnedGroundPlane)
 		{
-			if (ThisTile.MeshComp->IsValidLowLevel())
-				ThisTile.MeshComp->DestroyComponent(true);
+			if (ThisTile.BlockActor->IsValidLowLevel())
+				ThisTile.BlockActor->Destroy();
 			ThisTile.Column = 0;
 			ThisTile.Row = 0;
 		}
@@ -75,8 +75,8 @@ void ALevelMaker::ClearSpanwedTiles()
 	{
 		for (FTileInfo ThisTile : SpawnedBlock)
 		{
-			if (ThisTile.MeshComp->IsValidLowLevel())
-				ThisTile.MeshComp->DestroyComponent(true);
+			if (ThisTile.BlockActor->IsValidLowLevel())
+				ThisTile.BlockActor->Destroy();
 			ThisTile.Column = 0;
 			ThisTile.Row = 0;
 		}
@@ -88,8 +88,8 @@ void ALevelMaker::ClearSpanwedTiles()
 	{
 		for (FTileInfo ThisTile : SpawnedFence)
 		{
-			if (ThisTile.MeshComp->IsValidLowLevel())
-				ThisTile.MeshComp->DestroyComponent(true);
+			if (ThisTile.BlockActor->IsValidLowLevel())
+				ThisTile.BlockActor->Destroy();
 			ThisTile.Column = 0;
 			ThisTile.Row = 0;
 		}
@@ -101,8 +101,8 @@ void ALevelMaker::ClearSpanwedTiles()
 	{
 		for (FTileInfo ThisTile : SpawnedBricks)
 		{
-			if (ThisTile.MeshComp->IsValidLowLevel())
-				ThisTile.MeshComp->DestroyComponent(true);
+			if (ThisTile.BlockActor->IsValidLowLevel())
+				ThisTile.BlockActor->Destroy();
 			ThisTile.Column = 0;
 			ThisTile.Row = 0;
 		}
@@ -120,7 +120,7 @@ void ALevelMaker::MakeGround(int32 ColNum, int32 RowNum)
 
 	/*Store in array*/
 	FTileInfo NewTile = FTileInfo();
-	NewTile.SetDefault(NewMesh, ColNum, RowNum);
+	//NewTile.SetDefault(NewMesh, ColNum, RowNum);
 	SpawnedGroundPlane.Add(NewTile);
 }
 
@@ -137,7 +137,7 @@ void ALevelMaker::MakeIndestructibleBlock(int32 ColNum, int32 RowNum)
 	Loc.Y = RowNum * SizeOfBlock;
 	Loc.X = ColNum * SizeOfBlock;
 
-	UStaticMeshComponent* NewBlock = SpawnMeshComponent(BlockMesh, Loc, BlockMaterial);
+	ABlock* NewBlock = SpawnBlock(BlockMesh, Loc, BlockMaterial);
 
 	/*Store in array*/
 	FTileInfo NewTile = FTileInfo();
@@ -167,7 +167,7 @@ void ALevelMaker::SpawnDestructibleBricks(int32 ColNum, int32 RowNum)
 	Loc.Y = RowNum * SizeOfBlock;
 	Loc.X = ColNum * SizeOfBlock;
 
-	UStaticMeshComponent* NewBlock = SpawnMeshComponent(BrickMesh, Loc, BrickMaterial);
+	ABlock* NewBlock = SpawnBlock(BrickMesh, Loc, BrickMaterial);
 
 	/*Store in array*/
 	FTileInfo NewTile = FTileInfo();
@@ -189,7 +189,7 @@ void ALevelMaker::MakeFence()
 			Loc.Y = j * SizeOfBlock;
 			Loc.X = i * SizeOfBlock;
 
-			UStaticMeshComponent* NewFenceBlock = SpawnMeshComponent(BlockMesh, Loc, BlockMaterial);
+			ABlock* NewFenceBlock = SpawnBlock(BlockMesh, Loc, BlockMaterial);
 
 			FTileInfo NewTile = FTileInfo();
 			NewTile.SetDefault(NewFenceBlock, -1, j);
@@ -214,6 +214,21 @@ UStaticMeshComponent* ALevelMaker::SpawnMeshComponent(UStaticMesh* NewMesh, FVec
 	}
 
 	return CurrentMeshComp;
+}
+
+ABlock* ALevelMaker::SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position, UMaterialInterface* Material)
+{
+	if (ThisBlockType == nullptr)
+		return nullptr;
+
+	FTransform Tr;
+	ABlock* TempBlock = GetWorld()->SpawnActor<ABlock>(ThisBlockType, Tr);
+	if (TempBlock)
+	{
+		TempBlock->SetActorLocation(Position);
+	}
+
+	return TempBlock;
 }
 
 #pragma endregion

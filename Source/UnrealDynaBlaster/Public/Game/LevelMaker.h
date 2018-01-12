@@ -4,7 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Block.h"
 #include "LevelMaker.generated.h"
+
+
 
 USTRUCT(BlueprintType)
 struct FTileInfo
@@ -12,7 +15,7 @@ struct FTileInfo
 	GENERATED_BODY()
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* MeshComp;
+	ABlock* BlockActor;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Column;
@@ -20,13 +23,15 @@ struct FTileInfo
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int32 Row;
 
-	void SetDefault(UStaticMeshComponent* NewMesh, int32 NewCol, int32 NewRow)
+	void SetDefault(ABlock* NewMesh, int32 NewCol, int32 NewRow)
 	{
-		MeshComp = NewMesh;
+		BlockActor = NewMesh;
 		Column = NewCol;
 		Row = NewRow;
 	}
 };
+
+
 
 UCLASS()
 class UNREALDYNABLASTER_API ALevelMaker : public AActor
@@ -80,7 +85,7 @@ protected:
 		TArray<FTileInfo> SpawnedGroundPlane;
 
 	UPROPERTY(EditAnywhere, Category = Controller)
-		UStaticMesh* BlockMesh;
+		TSubclassOf<ABlock> BlockMesh;
 
 	UPROPERTY(EditAnywhere, Category = Controller)
 		UMaterialInterface* BlockMaterial;
@@ -93,7 +98,7 @@ protected:
 		TArray<FTileInfo> SpawnedFence;
 
 	UPROPERTY(EditAnywhere, Category = Controller)
-		UStaticMesh* BrickMesh;
+		TSubclassOf<ABlock> BrickMesh;
 
 	UPROPERTY(EditAnywhere, Category = Controller)
 		UMaterialInterface* BrickMaterial;
@@ -120,5 +125,7 @@ protected:
 	void MakeFence();
 
 	UStaticMeshComponent* SpawnMeshComponent(UStaticMesh* NewMesh, FVector Position, UMaterialInterface* Material);
+
+	ABlock* SpawnBlock(TSubclassOf<ABlock> ThisBlockType, FVector Position, UMaterialInterface* Material);
 #pragma endregion
 };

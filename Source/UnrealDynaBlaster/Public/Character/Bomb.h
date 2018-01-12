@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Bomb.generated.h"
 
+class ADynaCharacter;
 UCLASS()
 class UNREALDYNABLASTER_API ABomb : public AActor
 {
@@ -23,6 +24,22 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, Category = Component)
+		UStaticMeshComponent* BombMesh;
+
+	UPROPERTY(EditDefaultsOnly, Category = Controller)
+		float TimeToExplode = 3.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Controller)
+		UParticleSystem* ExplosionEffect;
+
+	UPROPERTY(EditDefaultsOnly, Category = Controller)
+		int32 ExplosionLength = 2;
+
+	FTimerHandle TimerHandle_Explode;
+	UFUNCTION(BlueprintCallable, Category = Controller)
+	void Explode();
 	
-	
+	UFUNCTION(BlueprintImplementableEvent)
+	void AfterExplosion();
 };

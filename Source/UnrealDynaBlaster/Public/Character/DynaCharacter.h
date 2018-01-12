@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Bomb.h"
 #include "DynaCharacter.generated.h"
 
 UCLASS()
@@ -26,11 +27,17 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool bIsDead = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
 		ADynaCharacter* SecondCharacter;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
 		bool IAmSecondCharacter;
+
 #pragma region Movement
 protected:
 
@@ -51,4 +58,25 @@ protected:
 
 #pragma endregion
 	
+#pragma region Weapon
+protected:
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		TSubclassOf<ABomb> BombClassTemplate;
+
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		int32 NumberOfBomb = 1;
+
+	UFUNCTION()
+	void SpawnBombFirstCharacter();
+
+	UFUNCTION()
+	void SpawnBombSecondCharacter();
+	
+	void SpawnBomb();
+
+public:
+
+	void IncreaseBombCount();
+#pragma endregion
 };
