@@ -33,6 +33,9 @@ void ABomb::Tick(float DeltaTime)
 
 void ABomb::Explode()
 {
+	if (bExploded)
+		return;
+	bExploded = true;
 	//GetWorldTimerManager().ClearTimer(TimerHandle_Explode);
 
 	if (GetOwner() && Cast<ADynaCharacter>(GetOwner()))
@@ -74,6 +77,10 @@ void ABomb::Explode()
 					 FDamageEvent DamageEvent(ValidDamageTypeClass);
 
 					 Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
+				 }
+				 else if (Cast<ABomb>(HitInfo.GetActor()))
+				 {
+					 Cast<ABomb>(HitInfo.GetActor())->Explode();
 				 }
 			 }
 		 }

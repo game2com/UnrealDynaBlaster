@@ -13,6 +13,14 @@ enum BlockType
 	BT_Brick,
 };
 
+UENUM(BlueprintType)
+enum SpawnType
+{
+	SP_BombIncrease,
+	SP_WalkSpeed,
+	SP_FireIncrease
+};
+
 UCLASS()
 class UNREALDYNABLASTER_API ABlock : public AActor
 {
@@ -36,13 +44,22 @@ protected:
 		UStaticMeshComponent* BlockMesh;
 	
 public:
+	inline UStaticMeshComponent* GetBlockMeshComponent() { return BlockMesh; }
+
 	UPROPERTY(EditAnywhere, Category = Controller)
 		TEnumAsByte<BlockType> _BlockType;
 
-	inline UStaticMeshComponent* GetBlockMeshComponent() { return BlockMesh; }
+	UPROPERTY(EditAnywhere, Category = Controller, meta = (UIMin = "0.0", UIMax = "1.0"))
+		float ChanceToHavePickableActor = 0.3f;
 
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = Controller)
 	void OnBlockExplosion();
+
+	UFUNCTION(BlueprintPure, Category = Controller)
+	bool CanSpawnPickuableByChance();
+
+	UFUNCTION(BlueprintPure, Category = Controller)
+	TEnumAsByte<SpawnType> GetRandomSpawnType();
 };

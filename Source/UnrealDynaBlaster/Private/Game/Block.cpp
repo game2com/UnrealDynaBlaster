@@ -26,3 +26,15 @@ void ABlock::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+bool ABlock::CanSpawnPickuableByChance()
+{
+	float RValue = FMath::FRand();
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::White, "RValue : " + FString::SanitizeFloat(RValue));
+	return RValue < ChanceToHavePickableActor ? true : false;
+}
+
+TEnumAsByte<SpawnType> ABlock::GetRandomSpawnType()
+{
+	return TEnumAsByte<SpawnType>(FMath::RandRange(0, (int32)SpawnType::SP_FireIncrease));
+}

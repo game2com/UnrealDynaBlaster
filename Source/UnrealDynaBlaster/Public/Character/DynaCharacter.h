@@ -67,6 +67,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 		int32 NumberOfBomb = 1;
 
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		int32 BombFireLength = 2;
+
 	UFUNCTION()
 	void SpawnBombFirstCharacter();
 
@@ -78,5 +81,14 @@ protected:
 public:
 
 	void IncreaseBombCount();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+		void IncreaseNumberOfBomb();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+		void IncreaseLengthOfBombFire();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void IncreaseWalkSpeed();
 #pragma endregion
 };

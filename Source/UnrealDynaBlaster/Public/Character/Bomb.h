@@ -24,6 +24,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	bool bExploded = false;
 	UPROPERTY(EditAnywhere, Category = Component)
 		UStaticMeshComponent* BombMesh;
 

@@ -2,7 +2,7 @@
 
 #include "DynaCharacter.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
 
 ADynaCharacter::ADynaCharacter()
 {
@@ -82,12 +82,17 @@ void ADynaCharacter::SecondCharMoveRight(float Value)
 
 void ADynaCharacter::MoveForward(float Value)
 {
+	if (bIsDead)
+		return;
+
 	FVector MoveVector = FVector(1, 0, 0);
 	AddMovementInput(MoveVector * Value);
 }
 
 void ADynaCharacter::MoveRight(float Value)
 {
+	if (bIsDead)
+		return;
 
 	FVector MoveVector = FVector(0, 1, 0);
 	AddMovementInput(MoveVector * Value);
@@ -113,14 +118,28 @@ void ADynaCharacter::SpawnBombSecondCharacter()
 
 void ADynaCharacter::SpawnBomb()
 {
+	if (bIsDead)
+		return;
+
 	if (NumberOfBomb <= 0)
 		return;
 
 	FTransform Tr;
-	Tr.SetLocation(GetActorLocation());
+	FVector SnapLocation = GetActorLocation();
+	SnapLocation.Y /= 100.0f;
+	SnapLocation.Y = FMath::RoundToFloat(SnapLocation.Y);
+	SnapLocation.Y *= 100.0f;
+
+	SnapLocation.X /= 100.0f;
+	SnapLocation.X = FMath::RoundToFloat(SnapLocation.X);
+	SnapLocation.X *= 100.0f;
+	Tr.SetLocation(SnapLocation);
 	ABomb* NewBomb = GetWorld()->SpawnActorDeferred<ABomb>(BombClassTemplate,Tr, this, this);
 	if (NewBomb)
+	{
+		NewBomb->ExplosionLength = BombFireLength;
 		UGameplayStatics::FinishSpawningActor(NewBomb, Tr);
+	}
 
 	NumberOfBomb -= 1;
 }
@@ -128,6 +147,22 @@ void ADynaCharacter::SpawnBomb()
 void ADynaCharacter::IncreaseBombCount()
 {
 	NumberOfBomb += 1;
+}
+
+void ADynaCharacter::IncreaseNumberOfBomb()
+{
+	NumberOfBomb++;
+}
+
+void ADynaCharacter::IncreaseLengthOfBombFire()
+{
+	BombFireLength++;
+}
+
+void ADynaCharacter::IncreaseWalkSpeed()
+{
+	if (GetCharacterMovement())
+		GetCharacterMovement()->MaxWalkSpeed += 25.0f;
 }
 
 #pragma endregion
