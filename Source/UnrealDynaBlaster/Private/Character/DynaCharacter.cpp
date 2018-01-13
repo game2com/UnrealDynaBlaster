@@ -118,6 +118,7 @@ void ADynaCharacter::AddScoreAfterDead()
 				}
 
 				Cast<ADynaCharacter>(ThisPawn)->SaveCurrentScore();
+				Cast<ADynaCharacter>(ThisPawn)->bLockKeys = true;
 			}
 		}
 	}
@@ -164,7 +165,7 @@ void ADynaCharacter::SecondCharMoveRight(float Value)
 
 void ADynaCharacter::MoveForward(float Value)
 {
-	if (bIsDead)
+	if (bIsDead || bLockKeys)
 		return;
 
 	FVector MoveVector = FVector(1, 0, 0);
@@ -173,7 +174,7 @@ void ADynaCharacter::MoveForward(float Value)
 
 void ADynaCharacter::MoveRight(float Value)
 {
-	if (bIsDead)
+	if (bIsDead || bLockKeys)
 		return;
 
 	FVector MoveVector = FVector(0, 1, 0);
@@ -214,7 +215,7 @@ void ADynaCharacter::DetonatorBombSecondCharacter()
 
 void ADynaCharacter::SpawnBomb()
 {
-	if (bIsDead)
+	if (bIsDead || bLockKeys)
 		return;
 
 	if (NumberOfBomb <= 0)

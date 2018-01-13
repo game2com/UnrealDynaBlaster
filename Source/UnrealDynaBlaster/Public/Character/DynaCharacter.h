@@ -72,6 +72,8 @@ protected:
 
 	void MoveRight(float Value);
 
+public:
+	bool bLockKeys;
 
 #pragma endregion
 	
