@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Block.h"
+#include "Components/BillboardComponent.h"
 #include "LevelMaker.generated.h"
 
 
@@ -105,7 +106,7 @@ protected:
 
 
 	UFUNCTION(BlueprintCallable, Category = LevelMaker)
-	void MakeProceduralMap();
+	void MakeProceduralMap(FVector2D& FirstPlayerPos, FVector2D& SecondPlayerPos);
 
 	void ClearSpanwedTiles();
 

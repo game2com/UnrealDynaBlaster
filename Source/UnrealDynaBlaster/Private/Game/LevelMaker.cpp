@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "LevelMaker.h"
-#include "Components/BillboardComponent.h"
 #include "Components/StaticMeshComponent.h"
 
 #pragma region Main
@@ -37,7 +36,7 @@ void ALevelMaker::Tick(float DeltaTime)
 
 #pragma region Level Maker Controller
 
-void ALevelMaker::MakeProceduralMap()
+void ALevelMaker::MakeProceduralMap(FVector2D& FirstPlayerPos, FVector2D& SecondPlayerPos)
 {
 	/*Clear Previous*/
 	ClearSpanwedTiles();
@@ -47,6 +46,12 @@ void ALevelMaker::MakeProceduralMap()
 	{
 		for (int32 Row = 0; Row < NumberOfRow; Row++)
 		{
+			if (Col == 0, Row == 0)
+				SecondPlayerPos = FVector2D(0, 0);
+
+			if (Col == NumberOfColumn - 1 && Row == NumberOfRow - 1)
+				FirstPlayerPos = FVector2D(Col * SizeOfBlock, Row * SizeOfBlock);
+
 			MakeGround(Col, Row);
 			MakeIndestructibleBlock(Col, Row);
 			SpawnDestructibleBricks(Col, Row);

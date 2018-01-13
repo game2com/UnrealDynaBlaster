@@ -105,7 +105,7 @@ void ADynaCharacter::AddScoreAfterDead()
 	bool bThereIsWin = false;
 	for (auto FConstPawnIterator = GetWorld()->GetPawnIterator(); FConstPawnIterator; ++FConstPawnIterator)
 	{
-		APawn* ThisPawn = *FConstPawnIterator;
+		APawn* ThisPawn = FConstPawnIterator->Get();
 		if (ThisPawn != this)
 		{
 			if (ADynaCharacter* ThisChar = Cast<ADynaCharacter>(ThisPawn))
