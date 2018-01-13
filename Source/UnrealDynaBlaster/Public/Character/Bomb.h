@@ -36,7 +36,13 @@ public:
 		UParticleSystem* ExplosionEffect;
 
 	UPROPERTY(EditDefaultsOnly, Category = Controller)
+		UParticleSystem* ExplosionLine;
+
+	UPROPERTY(EditDefaultsOnly, Category = Controller)
 		int32 ExplosionLength = 2;
+
+	UPROPERTY(EditAnywhere, Category = Component)
+		TSubclassOf<AActor> PointHelper;
 
 	FTimerHandle TimerHandle_Explode;
 	UFUNCTION(BlueprintCallable, Category = Controller)
@@ -47,4 +53,6 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category = Controller)
 	bool bCanRemoteControlBomb = false;
+
+	void SpawnLineFire(FVector EndPos);
 };

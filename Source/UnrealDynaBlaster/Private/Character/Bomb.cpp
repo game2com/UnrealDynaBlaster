@@ -5,6 +5,7 @@
 #include "DynaCharacter.h"
 #include "DrawDebugHelpers.h"
 #include "Game/Block.h"
+#include "Particles/ParticleSystemComponent.h"
 // Sets default values
 ABomb::ABomb()
 {
@@ -59,7 +60,6 @@ void ABomb::Explode()
 		return;
 
 	bExploded = true;
-	//GetWorldTimerManager().ClearTimer(TimerHandle_Explode);
 
 	if (GetOwner() && Cast<ADynaCharacter>(GetOwner()))
 		Cast<ADynaCharacter>(GetOwner())->IncreaseBombCount();
@@ -76,8 +76,6 @@ void ABomb::Explode()
 	FVector EndRight = GetActorLocation() + FVector(0, 50 * ExplosionLength, 0);
 	FVector EndLeft = GetActorLocation() + FVector(0, 50 * -ExplosionLength, 0);
 
-
-
 	 for (int i = 0; i < 4; i++)
 	 {
 		 FVector DesireEnd = EndForward;
@@ -85,31 +83,54 @@ void ABomb::Explode()
 		 else if (i == 2) DesireEnd = EndLeft;
 		 else if (i == 3) DesireEnd = EndRight;
 
-		 DrawDebugLine(GetWorld(), GetActorLocation(), DesireEnd, FColor::Red, true, 2);
+		// DrawDebugLine(GetWorld(), GetActorLocation(), DesireEnd, FColor::Red, true, 1);
+
+
 		 if (GetWorld()->LineTraceSingleByChannel(HitInfo, GetActorLocation(), DesireEnd, ECC_WorldStatic, CQP))
 		 {
+			if (HitInfo.GetActor())
+			{
+				SpawnLineFire(HitInfo.ImpactPoint);
 
-				 if (HitInfo.GetActor())
-				 {
-					 if (Cast<ABlock>(HitInfo.GetActor()))
-					 {
-						 Cast<ABlock>(HitInfo.GetActor())->OnBlockExplosion();
-					 }
-					 else if (Cast<ADynaCharacter>(HitInfo.GetActor()))
-					 {
-						 TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
-						 FDamageEvent DamageEvent(ValidDamageTypeClass);
+				if (Cast<ABlock>(HitInfo.GetActor()))
+				{
+					Cast<ABlock>(HitInfo.GetActor())->OnBlockExplosion();
+				}
+				else if (Cast<ADynaCharacter>(HitInfo.GetActor()))
+				{
+					TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+					FDamageEvent DamageEvent(ValidDamageTypeClass);
 
-						 Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
-					 }
-					 else if (Cast<ABomb>(HitInfo.GetActor()))
-					 {
-						 Cast<ABomb>(HitInfo.GetActor())->Explode();
-					 }
-				 }
-			 
+					Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
+				}
+				else if (Cast<ABomb>(HitInfo.GetActor()))
+				{
+					Cast<ABomb>(HitInfo.GetActor())->Explode();
+				}
+			}
+		 }
+		 else
+		 {
+			 SpawnLineFire(DesireEnd);
 		 }
 	 }
+
 	AfterExplosion();
+}
+
+void ABomb::SpawnLineFire(FVector EndPos)
+{
+	if (ExplosionLine && GetWorld() && PointHelper)
+	{
+		UParticleSystemComponent* PS = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), ExplosionLine, GetActorLocation(), FRotator(), true);
+		if (PS)
+		{
+			PS->SetVectorParameter("BeamSource", GetActorLocation());
+
+			AActor* PointToTarget = GetWorld()->SpawnActor<AActor>(PointHelper, EndPos, FRotator());
+			if (PointToTarget)
+				PS->SetActorParameter("BeamTarget", PointToTarget);
+		}
+	}
 }
 
