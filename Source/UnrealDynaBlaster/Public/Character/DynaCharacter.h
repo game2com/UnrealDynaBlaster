@@ -38,6 +38,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Main)
 		bool IAmSecondCharacter;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Main)
+		float Score = 0.0f;
+
+protected:
+	FTimerHandle TimerHandle_AddScoreAfterDead;
+	UFUNCTION()
+	void AddScoreAfterDead();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+		void SpawnWinUI();
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void SpawnDrawUI();
+
 #pragma region Movement
 protected:
 
@@ -105,5 +119,29 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void SetCanDetonatorBomb();
+
+	UFUNCTION(BlueprintPure, Category = Weapon)
+		inline int32 GetNumberOfBomb() { return NumberOfBomb; }
+#pragma endregion
+
+#pragma region Timer
+protected:
+	UPROPERTY(EditAnywhere, Category = Timer)
+		bool bDelegateTimer = false;
+
+	UPROPERTY(EditAnywhere, Category = Timer)
+		int32 MaxTime = 120;
+
+	int32 Timer = MaxTime;
+
+	void RunTimer();
+
+	FTimerHandle TimerHandle_TimerSubtract;
+	UFUNCTION()
+	void TimerSubtract();
+public:
+
+	UFUNCTION(BlueprintPure, Category = Timer)
+		int32 GetTimer() { return bDelegateTimer ? Timer : 0; }
 #pragma endregion
 };

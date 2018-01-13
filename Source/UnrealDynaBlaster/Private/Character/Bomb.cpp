@@ -65,24 +65,26 @@ void ABomb::Explode()
 		 DrawDebugLine(GetWorld(), GetActorLocation(), DesireEnd, FColor::Red, true, 2);
 		 if (GetWorld()->LineTraceSingleByChannel(HitInfo, GetActorLocation(), DesireEnd, ECC_WorldStatic, CQP))
 		 {
-			 if (HitInfo.GetActor())
-			 {
-				 if (Cast<ABlock>(HitInfo.GetActor()))
-				 {
-					 Cast<ABlock>(HitInfo.GetActor())->OnBlockExplosion();
-				 }
-				 else if (Cast<ADynaCharacter>(HitInfo.GetActor()))
-				 {
-					 TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
-					 FDamageEvent DamageEvent(ValidDamageTypeClass);
 
-					 Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
-				 }
-				 else if (Cast<ABomb>(HitInfo.GetActor()))
+				 if (HitInfo.GetActor())
 				 {
-					 Cast<ABomb>(HitInfo.GetActor())->Explode();
+					 if (Cast<ABlock>(HitInfo.GetActor()))
+					 {
+						 Cast<ABlock>(HitInfo.GetActor())->OnBlockExplosion();
+					 }
+					 else if (Cast<ADynaCharacter>(HitInfo.GetActor()))
+					 {
+						 TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
+						 FDamageEvent DamageEvent(ValidDamageTypeClass);
+
+						 Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
+					 }
+					 else if (Cast<ABomb>(HitInfo.GetActor()))
+					 {
+						 Cast<ABomb>(HitInfo.GetActor())->Explode();
+					 }
 				 }
-			 }
+			 
 		 }
 	 }
 	AfterExplosion();

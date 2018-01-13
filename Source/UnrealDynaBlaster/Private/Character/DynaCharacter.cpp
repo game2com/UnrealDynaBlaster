@@ -17,14 +17,14 @@ ADynaCharacter::ADynaCharacter()
 void ADynaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Timer = MaxTime;
+	RunTimer();
 }
 
 // Called every frame
 void ADynaCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -48,9 +48,44 @@ void ADynaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 float ADynaCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "I'm Dead");
+	if (bIsDead)
+		return 0.0f;
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Blue, "I'm Dead By : " + DamageCauser->GetOwner()->GetName());
 	bIsDead = true;
+	
+
+	GetWorldTimerManager().SetTimer(TimerHandle_AddScoreAfterDead, this, &ADynaCharacter::AddScoreAfterDead, 0.5f, false);
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
+void ADynaCharacter::AddScoreAfterDead()
+{
+	bool bThereIsWin = false;
+	for (auto FConstPawnIterator = GetWorld()->GetPawnIterator(); FConstPawnIterator; ++FConstPawnIterator)
+	{
+		APawn* ThisPawn = *FConstPawnIterator;
+		if (ThisPawn != this)
+		{
+			if (Cast<ADynaCharacter>(ThisPawn))
+			{
+				if (Cast<ADynaCharacter>(ThisPawn)->bIsDead == false)
+				{
+					Cast<ADynaCharacter>(ThisPawn)->Score += 1000;
+					Cast<ADynaCharacter>(ThisPawn)->SpawnWinUI();
+					bThereIsWin = true;
+				}
+			}
+		}
+	}
+
+	if (bThereIsWin == false)
+	{
+		if (IAmSecondCharacter == false)
+		{
+			SpawnDrawUI();
+		}
+	}
 }
 
 #pragma region Movement
@@ -157,6 +192,7 @@ void ADynaCharacter::SpawnBomb()
 	ABomb* NewBomb = GetWorld()->SpawnActorDeferred<ABomb>(BombClassTemplate,Tr, this, this);
 	if (NewBomb)
 	{
+		NewBomb->SetOwner(this);
 		NewBomb->ExplosionLength = BombFireLength;
 		NewBomb->bCanRemoteControlBomb = bCanDetonatorBomb;
 		UGameplayStatics::FinishSpawningActor(NewBomb, Tr);
@@ -205,4 +241,47 @@ void ADynaCharacter::SetCanDetonatorBomb()
 }
 
 #pragma endregion
+
+#pragma region Timer
+void ADynaCharacter::RunTimer()
+{
+	if (IAmSecondCharacter == false)
+	{
+		if (bIsDead)
+			return;
+	}
+	else
+	{
+		if (SecondCharacter && SecondCharacter->bIsDead)
+			return;
+	}
+
+
+	GetWorldTimerManager().SetTimer(TimerHandle_TimerSubtract, this, &ADynaCharacter::TimerSubtract, 1.0f, true);
+}
+
+void ADynaCharacter::TimerSubtract()
+{
+	if (IAmSecondCharacter == false)
+	{
+		if (bIsDead)
+			return;
+	}
+	else
+	{
+		if (SecondCharacter && SecondCharacter->bIsDead)
+			return;
+	}
+
+	if (Timer <= 0)
+	{
+		GetWorldTimerManager().ClearTimer(TimerHandle_TimerSubtract);
+		return;
+	}
+
+	Timer -= 1;
+}
+
+#pragma endregion
+
 
