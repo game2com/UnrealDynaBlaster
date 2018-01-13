@@ -41,6 +41,9 @@ void ADynaCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 	PlayerInputComponent->BindAction("SpawnBombFirst", EInputEvent::IE_Pressed, this, &ADynaCharacter::SpawnBombFirstCharacter);
 	PlayerInputComponent->BindAction("SpawnBombSecond", EInputEvent::IE_Pressed, this, &ADynaCharacter::SpawnBombSecondCharacter);
+
+	PlayerInputComponent->BindAction("DetonatorFirst", EInputEvent::IE_Pressed, this, &ADynaCharacter::DetonatorBombFirstCharacter);
+	PlayerInputComponent->BindAction("DetonatorSecond", EInputEvent::IE_Pressed, this, &ADynaCharacter::DetonatorBombSecondCharacter);
 }
 
 float ADynaCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
@@ -116,12 +119,29 @@ void ADynaCharacter::SpawnBombSecondCharacter()
 		SecondCharacter->SpawnBomb();
 }
 
+void ADynaCharacter::DetonatorBombFirstCharacter()
+{
+	if (IAmSecondCharacter)
+		return;
+
+	DetonatorBomb();
+}
+
+void ADynaCharacter::DetonatorBombSecondCharacter()
+{
+	if (SecondCharacter)
+		SecondCharacter->DetonatorBomb();
+}
+
 void ADynaCharacter::SpawnBomb()
 {
 	if (bIsDead)
 		return;
 
 	if (NumberOfBomb <= 0)
+		return;
+
+	if (bCanDetonatorBomb && CurrentBomb != nullptr)
 		return;
 
 	FTransform Tr;
@@ -138,15 +158,29 @@ void ADynaCharacter::SpawnBomb()
 	if (NewBomb)
 	{
 		NewBomb->ExplosionLength = BombFireLength;
+		NewBomb->bCanRemoteControlBomb = bCanDetonatorBomb;
 		UGameplayStatics::FinishSpawningActor(NewBomb, Tr);
+		CurrentBomb = NewBomb;
 	}
 
 	NumberOfBomb -= 1;
 }
 
+void ADynaCharacter::DetonatorBomb()
+{
+	if (bCanDetonatorBomb == false)
+		return;
+
+	if (CurrentBomb)
+	{
+		CurrentBomb->Explode();
+	}
+}
+
 void ADynaCharacter::IncreaseBombCount()
 {
 	NumberOfBomb += 1;
+	CurrentBomb = nullptr;
 }
 
 void ADynaCharacter::IncreaseNumberOfBomb()
@@ -163,6 +197,11 @@ void ADynaCharacter::IncreaseWalkSpeed()
 {
 	if (GetCharacterMovement())
 		GetCharacterMovement()->MaxWalkSpeed += 25.0f;
+}
+
+void ADynaCharacter::SetCanDetonatorBomb()
+{
+	bCanDetonatorBomb = true;
 }
 
 #pragma endregion

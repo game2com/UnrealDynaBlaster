@@ -43,4 +43,7 @@ public:
 	
 	UFUNCTION(BlueprintImplementableEvent)
 	void AfterExplosion();
+
+	UPROPERTY(BlueprintReadOnly, Category = Controller)
+	bool bCanRemoteControlBomb = false;
 };

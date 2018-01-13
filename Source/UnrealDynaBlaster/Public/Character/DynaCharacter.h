@@ -70,14 +70,26 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Weapon)
 		int32 BombFireLength = 2;
 
+	UPROPERTY(EditAnywhere, Category = Weapon)
+		bool bCanDetonatorBomb = false;
+
+	ABomb* CurrentBomb = nullptr;
+
 	UFUNCTION()
 	void SpawnBombFirstCharacter();
 
 	UFUNCTION()
 	void SpawnBombSecondCharacter();
 	
-	void SpawnBomb();
 
+	UFUNCTION()
+		void DetonatorBombFirstCharacter();
+
+	UFUNCTION()
+		void DetonatorBombSecondCharacter();
+
+	void SpawnBomb();
+	void DetonatorBomb();
 public:
 
 	void IncreaseBombCount();
@@ -90,5 +102,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void IncreaseWalkSpeed();
+
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void SetCanDetonatorBomb();
 #pragma endregion
 };

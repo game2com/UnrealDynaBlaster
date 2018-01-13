@@ -18,6 +18,7 @@ enum SpawnType
 {
 	SP_BombIncrease,
 	SP_WalkSpeed,
+	SP_Detonator,
 	SP_FireIncrease
 };
 
