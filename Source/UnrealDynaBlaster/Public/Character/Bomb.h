@@ -20,6 +20,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	const bool GameIsRuning();
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

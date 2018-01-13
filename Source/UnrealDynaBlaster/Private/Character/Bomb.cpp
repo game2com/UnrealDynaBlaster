@@ -24,6 +24,25 @@ void ABomb::BeginPlay()
 	//Explode();
 }
 
+const bool ABomb::GameIsRuning()
+{
+	bool ContinueGame = true;
+	for (auto FConstPawnIterator = GetWorld()->GetPawnIterator(); FConstPawnIterator; ++FConstPawnIterator)
+	{
+		APawn* ThisPawn = *FConstPawnIterator;
+
+		if (Cast<ADynaCharacter>(ThisPawn))
+		{
+			if (Cast<ADynaCharacter>(ThisPawn)->bIsDead == true)
+			{
+				ContinueGame = false;
+			}
+		}
+	}
+
+	return ContinueGame;
+}
+
 // Called every frame
 void ABomb::Tick(float DeltaTime)
 {
@@ -33,8 +52,12 @@ void ABomb::Tick(float DeltaTime)
 
 void ABomb::Explode()
 {
+	if (GameIsRuning() == false)
+		return;
+
 	if (bExploded)
 		return;
+
 	bExploded = true;
 	//GetWorldTimerManager().ClearTimer(TimerHandle_Explode);
 
