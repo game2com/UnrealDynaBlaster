@@ -32,9 +32,9 @@ const bool ABomb::GameIsRuning()
 	{
 		APawn* ThisPawn = *FConstPawnIterator;
 
-		if (Cast<ADynaCharacter>(ThisPawn))
+		if (ADynaCharacter* MyCh = Cast<ADynaCharacter>(ThisPawn))
 		{
-			if (Cast<ADynaCharacter>(ThisPawn)->bIsDead == true)
+			if (MyCh->bIsDead == true)
 			{
 				ContinueGame = false;
 			}
@@ -76,7 +76,7 @@ void ABomb::Explode()
 	FVector EndRight = GetActorLocation() + FVector(0, 50 * ExplosionLength, 0);
 	FVector EndLeft = GetActorLocation() + FVector(0, 50 * -ExplosionLength, 0);
 
-	 for (int i = 0; i < 4; i++)
+	 for (int32 i = 0; i < 4; i++)
 	 {
 		 FVector DesireEnd = EndForward;
 		 if (i == 1) DesireEnd = EndBackward;
@@ -88,24 +88,26 @@ void ABomb::Explode()
 
 		 if (GetWorld()->LineTraceSingleByChannel(HitInfo, GetActorLocation(), DesireEnd, ECC_WorldStatic, CQP))
 		 {
-			if (HitInfo.GetActor())
+			if (HitInfo.GetActor()->IsValidLowLevel())
 			{
 				SpawnLineFire(HitInfo.ImpactPoint);
 
-				if (Cast<ABlock>(HitInfo.GetActor()))
+				/*Block Impact*/
+				if (ABlock* Bl = Cast<ABlock>(HitInfo.GetActor()))
 				{
-					Cast<ABlock>(HitInfo.GetActor())->OnBlockExplosion();
+					Bl->OnBlockExplosion();
 				}
-				else if (Cast<ADynaCharacter>(HitInfo.GetActor()))
+				/*Character Impact*/
+				else if (ADynaCharacter* MyCh = Cast<ADynaCharacter>(HitInfo.GetActor()))
 				{
 					TSubclassOf<UDamageType> const ValidDamageTypeClass = TSubclassOf<UDamageType>(UDamageType::StaticClass());
 					FDamageEvent DamageEvent(ValidDamageTypeClass);
 
-					Cast<ADynaCharacter>(HitInfo.GetActor())->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
+					MyCh->TakeDamage(10, DamageEvent, GetOwner()->GetInstigatorController(), this);
 				}
-				else if (Cast<ABomb>(HitInfo.GetActor()))
+				else if (ABomb* ThisBomb = Cast<ABomb>(HitInfo.GetActor()))
 				{
-					Cast<ABomb>(HitInfo.GetActor())->Explode();
+					ThisBomb->Explode();
 				}
 			}
 		 }

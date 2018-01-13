@@ -108,17 +108,17 @@ void ADynaCharacter::AddScoreAfterDead()
 		APawn* ThisPawn = *FConstPawnIterator;
 		if (ThisPawn != this)
 		{
-			if (Cast<ADynaCharacter>(ThisPawn))
+			if (ADynaCharacter* ThisChar = Cast<ADynaCharacter>(ThisPawn))
 			{
-				if (Cast<ADynaCharacter>(ThisPawn)->bIsDead == false)
+				if (ThisChar->bIsDead == false)
 				{
-					Cast<ADynaCharacter>(ThisPawn)->Score += 1000;
-					Cast<ADynaCharacter>(ThisPawn)->SpawnWinUI();
+					ThisChar->Score += 1000;
+					ThisChar->SpawnWinUI();
 					bThereIsWin = true;
 				}
 
-				Cast<ADynaCharacter>(ThisPawn)->SaveCurrentScore();
-				Cast<ADynaCharacter>(ThisPawn)->bLockKeys = true;
+				ThisChar->SaveCurrentScore();
+				ThisChar->bLockKeys = true;
 			}
 		}
 	}
