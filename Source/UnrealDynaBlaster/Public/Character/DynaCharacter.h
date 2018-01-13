@@ -42,6 +42,9 @@ public:
 		float Score = 0.0f;
 
 protected:
+	void SaveCurrentScore();
+	void LoadPreviousScore();
+
 	FTimerHandle TimerHandle_AddScoreAfterDead;
 	UFUNCTION()
 	void AddScoreAfterDead();

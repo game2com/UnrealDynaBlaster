@@ -3,7 +3,7 @@
 #include "DynaCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
-
+#include "Game/DynaSaveGame.h"
 ADynaCharacter::ADynaCharacter()
 {
 
@@ -17,6 +17,7 @@ ADynaCharacter::ADynaCharacter()
 void ADynaCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	LoadPreviousScore();
 	Timer = MaxTime;
 	RunTimer();
 }
@@ -59,6 +60,46 @@ float ADynaCharacter::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
+void ADynaCharacter::SaveCurrentScore()
+{
+	/*Save Score*/
+
+	UDynaSaveGame* SaveGameInstance = Cast<UDynaSaveGame>(UGameplayStatics::CreateSaveGameObject(UDynaSaveGame::StaticClass()));
+	if (SaveGameInstance)
+	{
+		
+		if (IAmSecondCharacter == false)
+		{
+			SaveGameInstance->FirstPlayerScore = Score;
+			UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotPlayerOne, SaveGameInstance->UserIndex);
+		}
+		else
+		{
+			SaveGameInstance->SecondPlayerScore = Score;
+			UGameplayStatics::SaveGameToSlot(SaveGameInstance, SaveGameInstance->SaveSlotPlayerTwo, SaveGameInstance->UserIndex);
+		}
+	}
+	
+}
+
+void ADynaCharacter::LoadPreviousScore()
+{
+	UDynaSaveGame* LoadGameInstance = Cast<UDynaSaveGame>(UGameplayStatics::CreateSaveGameObject(UDynaSaveGame::StaticClass()));
+	if(IAmSecondCharacter == false)
+		LoadGameInstance = Cast<UDynaSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->SaveSlotPlayerOne, LoadGameInstance->UserIndex));
+	else 
+		LoadGameInstance = Cast<UDynaSaveGame>(UGameplayStatics::LoadGameFromSlot(LoadGameInstance->SaveSlotPlayerTwo, LoadGameInstance->UserIndex));
+
+	if (LoadGameInstance)
+	{
+		if (IAmSecondCharacter == false)
+			Score = LoadGameInstance->FirstPlayerScore;
+		
+		else
+			Score = LoadGameInstance->SecondPlayerScore;
+	}
+}
+
 void ADynaCharacter::AddScoreAfterDead()
 {
 	bool bThereIsWin = false;
@@ -75,6 +116,8 @@ void ADynaCharacter::AddScoreAfterDead()
 					Cast<ADynaCharacter>(ThisPawn)->SpawnWinUI();
 					bThereIsWin = true;
 				}
+
+				Cast<ADynaCharacter>(ThisPawn)->SaveCurrentScore();
 			}
 		}
 	}
@@ -86,6 +129,7 @@ void ADynaCharacter::AddScoreAfterDead()
 			SpawnDrawUI();
 		}
 	}
+
 }
 
 #pragma region Movement
